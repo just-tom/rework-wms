@@ -49,6 +49,7 @@ final class PlaceOrderAction
 
             $order->items()->create([
                 'product_id' => $product->id,
+                'warehouse_id' => $warehouseStock->warehouse_id,
                 'price' => $product->price,
                 'quantity' => $data->quantity,
                 'total' => $itemTotal,

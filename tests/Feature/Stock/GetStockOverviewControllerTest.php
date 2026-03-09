@@ -72,9 +72,13 @@ it('includes warehouse breakdown per product', function () {
         ->where('products.data.0.warehouses.0.name', 'London')
         ->where('products.data.0.warehouses.0.quantity', 60)
         ->where('products.data.0.warehouses.0.threshold', 10)
+        ->where('products.data.0.warehouses.0.allocatedToOrders', 0)
+        ->where('products.data.0.warehouses.0.immediateDespatch', 50)
         ->where('products.data.0.warehouses.1.name', 'Manchester')
         ->where('products.data.0.warehouses.1.quantity', 25)
         ->where('products.data.0.warehouses.1.threshold', 5)
+        ->where('products.data.0.warehouses.1.allocatedToOrders', 0)
+        ->where('products.data.0.warehouses.1.immediateDespatch', 20)
     );
 });
 
@@ -114,5 +118,54 @@ it('returns the second page of products', function () {
     $response->assertInertia(fn ($page) => $page
         ->has('products.data', 25)
         ->where('products.meta.current_page', 2)
+    );
+});
+
+it('includes per-warehouse allocated to orders and immediate despatch', function () {
+    $product = Product::factory()->create();
+    $london = Warehouse::factory()->create(['name' => 'London']);
+    $manchester = Warehouse::factory()->create(['name' => 'Manchester']);
+
+    WarehouseStock::factory()->create([
+        'product_id' => $product->id,
+        'warehouse_id' => $london->id,
+        'quantity' => 50,
+        'threshold' => 10,
+    ]);
+
+    WarehouseStock::factory()->create([
+        'product_id' => $product->id,
+        'warehouse_id' => $manchester->id,
+        'quantity' => 30,
+        'threshold' => 5,
+    ]);
+
+    OrderItem::factory()->for(Order::factory()->state(['order_status' => OrderStatus::Placed]))->create([
+        'product_id' => $product->id,
+        'warehouse_id' => $london->id,
+        'quantity' => 7,
+    ]);
+
+    OrderItem::factory()->for(Order::factory()->state(['order_status' => OrderStatus::Placed]))->create([
+        'product_id' => $product->id,
+        'warehouse_id' => $manchester->id,
+        'quantity' => 3,
+    ]);
+
+    OrderItem::factory()->for(Order::factory()->state(['order_status' => OrderStatus::Dispatched]))->create([
+        'product_id' => $product->id,
+        'warehouse_id' => $london->id,
+        'quantity' => 100,
+    ]);
+
+    $response = $this->get(route('stock.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('products.data.0.warehouses.0.name', 'London')
+        ->where('products.data.0.warehouses.0.allocatedToOrders', 7)
+        ->where('products.data.0.warehouses.0.immediateDespatch', 40)
+        ->where('products.data.0.warehouses.1.name', 'Manchester')
+        ->where('products.data.0.warehouses.1.allocatedToOrders', 3)
+        ->where('products.data.0.warehouses.1.immediateDespatch', 25)
     );
 });

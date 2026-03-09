@@ -6,11 +6,13 @@ namespace App\Managers;
 
 use App\Enums\OrderStatus;
 use App\Models\Product;
+use App\Models\Warehouse;
 
 final readonly class StockManager
 {
     public function __construct(
         private Product $product,
+        private ?int $warehouseId = null,
     ) {}
 
     public static function for(Product $product): self
@@ -18,11 +20,24 @@ final readonly class StockManager
         return new self($product);
     }
 
+    public function in(Warehouse|int $warehouse): self
+    {
+        return new self(
+            $this->product,
+            $warehouse instanceof Warehouse ? $warehouse->id : $warehouse,
+        );
+    }
+
     public function allocatedToOrders(): int
     {
-        return (int) $this->product->orderItems()
-            ->whereHas('order', fn ($query) => $query->where('order_status', OrderStatus::Placed))
-            ->sum('quantity');
+        $query = $this->product->orderItems()
+            ->whereHas('order', fn ($query) => $query->where('order_status', OrderStatus::Placed));
+
+        if ($this->warehouseId !== null) {
+            $query->where('warehouse_id', $this->warehouseId);
+        }
+
+        return (int) $query->sum('quantity');
     }
 
     public function physicalQuantity(): int
@@ -32,7 +47,13 @@ final readonly class StockManager
 
     public function totalThreshold(): int
     {
-        return (int) $this->product->warehouseStocks()->sum('threshold');
+        $query = $this->product->warehouseStocks();
+
+        if ($this->warehouseId !== null) {
+            $query->where('warehouse_id', $this->warehouseId);
+        }
+
+        return (int) $query->sum('threshold');
     }
 
     public function immediateDespatch(): int
@@ -42,6 +63,12 @@ final readonly class StockManager
 
     private function warehouseQuantity(): int
     {
-        return (int) $this->product->warehouseStocks()->sum('quantity');
+        $query = $this->product->warehouseStocks();
+
+        if ($this->warehouseId !== null) {
+            $query->where('warehouse_id', $this->warehouseId);
+        }
+
+        return (int) $query->sum('quantity');
     }
 }

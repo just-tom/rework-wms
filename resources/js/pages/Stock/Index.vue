@@ -33,14 +33,14 @@ const toggleRow = (uuid: string) => {
     } else {
         expandedRows.value.add(uuid);
     }
-}
+};
 
 const navigateToPage = (page: number): void => {
     const url = products.meta.links.find((l) => l.page === page)?.url;
     if (url) {
         router.visit(url, { preserveScroll: true });
     }
-}
+};
 </script>
 
 <template>
@@ -130,7 +130,11 @@ const navigateToPage = (page: number): void => {
                                     >
                                         └ {{ warehouse.name }}
                                     </TableCell>
-                                    <TableCell />
+                                    <TableCell
+                                        class="text-right text-muted-foreground"
+                                    >
+                                        {{ warehouse.allocatedToOrders }}
+                                    </TableCell>
                                     <TableCell
                                         class="text-right text-muted-foreground"
                                     >
@@ -141,7 +145,20 @@ const navigateToPage = (page: number): void => {
                                     >
                                         {{ warehouse.threshold }}
                                     </TableCell>
-                                    <TableCell />
+                                    <TableCell
+                                        class="text-right font-semibold"
+                                        :class="{
+                                            'text-red-600':
+                                                warehouse.immediateDespatch < 0,
+                                            'text-green-600':
+                                                warehouse.immediateDespatch > 0,
+                                            'text-muted-foreground':
+                                                warehouse.immediateDespatch ===
+                                                0,
+                                        }"
+                                    >
+                                        {{ warehouse.immediateDespatch }}
+                                    </TableCell>
                                 </TableRow>
                             </template>
                         </template>

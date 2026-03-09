@@ -28,6 +28,8 @@ final class StockOverviewResource extends JsonResource
                 'name' => $stock->warehouse->name,
                 'quantity' => $stock->quantity,
                 'threshold' => $stock->threshold,
+                'allocatedToOrders' => $manager->in($stock->warehouse_id)->allocatedToOrders(),
+                'immediateDespatch' => $manager->in($stock->warehouse_id)->immediateDespatch(),
             ]),
         ];
     }

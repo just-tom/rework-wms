@@ -2,6 +2,8 @@ export type WarehouseBreakdown = {
     name: string;
     quantity: number;
     threshold: number;
+    allocatedToOrders: number;
+    immediateDespatch: number;
 };
 
 export type StockOverview = {

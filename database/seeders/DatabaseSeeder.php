@@ -14,8 +14,8 @@ final class DatabaseSeeder extends Seeder
         $this->call([
             ProductSeeder::class,
             WarehouseSeeder::class,
-            OrderSeeder::class,
             WarehouseStockSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }
