@@ -17,7 +17,7 @@ final class WarehouseStockSeeder extends Seeder
         $products = Product::all();
 
         foreach ($warehouses as $warehouse) {
-            $stockProducts = $products->random(fake()->numberBetween(5, 15));
+            $stockProducts = $products->random(fake()->numberBetween(5, 45));
 
             foreach ($stockProducts as $product) {
                 WarehouseStock::factory()->create([

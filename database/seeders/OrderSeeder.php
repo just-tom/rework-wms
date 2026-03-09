@@ -15,7 +15,7 @@ final class OrderSeeder extends Seeder
     {
         $products = Product::all();
 
-        Order::factory(10)->create()->each(function (Order $order) use ($products) {
+        Order::factory(25)->create()->each(function (Order $order) use ($products) {
             $itemCount = fake()->numberBetween(1, 5);
             $orderTotal = 0;
 
