@@ -28,14 +28,39 @@ test('it converts to pounds', function () {
     expect($money->toPounds())->toBe(12.5);
 });
 
-test('it formats as decimal string', function () {
+test('it formats with GBP symbol', function () {
     $money = new Money(1250);
 
-    expect($money->format())->toBe('12.50 GBP');
+    expect($money->format())->toBe('£12.50');
 });
 
 test('it casts to string using format', function () {
     $money = new Money(1250);
 
-    expect((string) $money)->toBe('12.50 GBP');
+    expect((string) $money)->toBe('£12.50');
+});
+
+test('it formats with currency code for unknown currencies', function () {
+    $money = new Money(1000, 'JPY');
+
+    expect($money->format())->toBe('JPY 10.00');
+});
+
+test('it serializes to json with amount and formatted string', function () {
+    $money = new Money(1250);
+
+    expect($money->jsonSerialize())->toBe([
+        'amount' => 1250,
+        'currency' => 'GBP',
+        'formatted' => '£12.50',
+    ]);
+});
+
+test('it multiplies the amount', function () {
+    $money = new Money(500);
+
+    $result = $money->multiply(3);
+
+    expect($result->amount)->toBe(1500)
+        ->and($result->currency)->toBe('GBP');
 });

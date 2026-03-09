@@ -1,4 +1,4 @@
-import type { Auth } from '@/types/auth';
+import type {} from 'vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -17,8 +17,6 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
-            auth: Auth;
-            sidebarOpen: boolean;
             [key: string]: unknown;
         };
     }

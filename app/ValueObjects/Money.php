@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-final readonly class Money
+use JsonSerializable;
+
+final readonly class Money implements JsonSerializable
 {
     public function __construct(
         public int $amount,
@@ -26,8 +28,25 @@ final readonly class Money
         return $this->amount / 100;
     }
 
+    public function multiply(int $multiplier): self
+    {
+        return new self($this->amount * $multiplier, $this->currency);
+    }
+
     public function format(): string
     {
-        return number_format($this->toPounds(), 2).' '.$this->currency;
+        return match ($this->currency) {
+            'GBP' => '£',
+            default => $this->currency.' ',
+        }.number_format($this->toPounds(), 2);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'formatted' => $this->format(),
+        ];
     }
 }

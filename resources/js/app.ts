@@ -1,8 +1,10 @@
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
+import { toast } from 'vue-sonner';
 import '../css/app.css';
+import 'vue-sonner/style.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -21,4 +23,10 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+router.on('flash', (event) => {
+    const flash = event.detail.flash;
+    if (flash.success) toast.success(flash.success);
+    if (flash.error) toast.error(flash.error);
 });
