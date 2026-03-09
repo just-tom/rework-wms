@@ -19,17 +19,16 @@ final class OrderSeeder extends Seeder
 
         $products = Product::whereHas('warehouseStocks')->get();
 
-        Order::factory(25)->create()->each(function (Order $order) use ($products) {
-            $itemCount = fake()->numberBetween(1, 5);
-            $orderTotal = 0;
-
-            $selectedProducts = $products->random($itemCount);
-
-            foreach ($selectedProducts as $product) {
+        Order::factory(40)
+            ->sequence(fn ($sequence) => [
+                'created_at' => now()->subMinutes($sequence->index),
+            ])
+            ->create()
+            ->each(function (Order $order) use ($products) {
+                $product = $products->random();
                 $price = $product->getRawOriginal('price');
                 $quantity = fake()->numberBetween(1, 5);
                 $total = $price * $quantity;
-                $orderTotal += $total;
 
                 $warehouseStock = WarehouseStock::where('product_id', $product->id)->inRandomOrder()->first();
 
@@ -41,9 +40,8 @@ final class OrderSeeder extends Seeder
                     'quantity' => $quantity,
                     'total' => $total,
                 ]);
-            }
 
-            $order->update(['total' => $orderTotal]);
-        });
+                $order->update(['total' => $total]);
+            });
     }
 }

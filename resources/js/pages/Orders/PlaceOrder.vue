@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import GetOrdersController from '@/actions/App/Http/Controllers/Orders/GetOrdersController';
 import StoreOrderController from '@/actions/App/Http/Controllers/Orders/StoreOrderController';
+import GetStockOverviewController from '@/actions/App/Http/Controllers/Stock/GetStockOverviewController';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -45,7 +47,7 @@ const formatTotal = (cents: number): string => {
         style: 'currency',
         currency: 'GBP',
     }).format(cents / 100);
-}
+};
 const submit = () => {
     if (!selectedProduct.value) return;
 
@@ -61,7 +63,9 @@ const submit = () => {
     <Head title="Place Order" />
 
     <AppLayout>
-        <div class="mx-4 flex h-screen items-center justify-center sm:mx-0">
+        <div
+            class="flex h-full flex-1 flex-col items-center justify-center p-4"
+        >
             <Card class="w-full max-w-md">
                 <CardHeader>
                     <CardTitle>Place Order</CardTitle>
@@ -141,6 +145,21 @@ const submit = () => {
                     </CardFooter>
                 </form>
             </Card>
+
+            <div class="mt-4 flex gap-4">
+                <Link
+                    :href="GetStockOverviewController.url()"
+                    class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                    View Stock
+                </Link>
+                <Link
+                    :href="GetOrdersController.url()"
+                    class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                    View Orders
+                </Link>
+            </div>
         </div>
     </AppLayout>
 </template>
